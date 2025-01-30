@@ -1,8 +1,13 @@
 package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Category;
+import com.mycompany.myapp.domain.CreateInfo;
+import com.mycompany.myapp.domain.RefType;
+import com.mycompany.myapp.domain.RefType.RefTo;
+import com.mycompany.myapp.domain.UpdateInfo;
 import com.mycompany.myapp.feign.CategoryClient;
 import com.mycompany.myapp.repository.CategoryRepository;
+import com.mycompany.myapp.repository.UserRepository;
 import com.mycompany.myapp.service.CategoryService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URISyntaxException;
@@ -11,10 +16,14 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.bson.types.ObjectId;
+import java.time.Instant;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -39,12 +48,16 @@ public class CategoryResource {
 
     private final CategoryClient categoryClient;
 
-   
+    private final UserRepository userRepository;
+
+
+
     public CategoryResource(CategoryService categoryService, CategoryRepository categoryRepository,
-            CategoryClient categoryClient) {
+            CategoryClient categoryClient, UserRepository userRepository) {
         this.categoryService = categoryService;
         this.categoryRepository = categoryRepository;
         this.categoryClient = categoryClient;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -57,6 +70,21 @@ public class CategoryResource {
     @PostMapping("/pro5/category")
     public ResponseEntity<?> createCategory(@RequestBody Category category) throws URISyntaxException {
         log.debug("REST request to save Category : {}", category);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+
+        category.setCreateInfo(CreateInfo.builder()
+                .user(new RefType(userRepository.findOneByLogin(currentPrincipalName).get().getId(), RefTo.User))
+                .createdDate(Instant.now())
+                .build());
+
+        category.setUpdateInfo(UpdateInfo.builder()
+                .user(new RefType(userRepository.findOneByLogin(currentPrincipalName).get().getId(), RefTo.User))
+                .lastModifiedDate(Instant.now())
+                .build());
+
+    
        
         category.setId(new ObjectId().toHexString());
         ResponseEntity<Void> save = categoryClient.save(category);
@@ -150,4 +178,7 @@ public class CategoryResource {
        ResponseEntity<Void> deleteCategory = categoryClient.delete(id);
        return deleteCategory;
    }
+
+   
+   
 }

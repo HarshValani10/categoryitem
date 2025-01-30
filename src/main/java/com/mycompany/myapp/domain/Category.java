@@ -34,8 +34,31 @@ public class Category implements Serializable {
     @Field("description")
     private String description;
 
+    public CreateInfo getCreateInfo() {
+        return createInfo;
+    }
+
+    public void setCreateInfo(CreateInfo createInfo) {
+        this.createInfo = createInfo;
+    }
+
+    public UpdateInfo getUpdateInfo() {
+        return updateInfo;
+    }
+
+    public void setUpdateInfo(UpdateInfo updateInfo) {
+        this.updateInfo = updateInfo;
+    }
+
     @Field("item")
     List<RefType> item = new ArrayList<>();
+
+
+    @Field("create_info")
+    private CreateInfo createInfo;
+
+    @Field("update_info")
+    private UpdateInfo updateInfo;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
