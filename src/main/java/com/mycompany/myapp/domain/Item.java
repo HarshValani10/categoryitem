@@ -39,6 +39,28 @@ public class Item implements Serializable {
         Category = category;
     }
 
+    public CreateInfo getCreateInfo() {
+        return createInfo;
+    }
+
+    public void setCreateInfo(CreateInfo createInfo) {
+        this.createInfo = createInfo;
+    }
+
+    public UpdateInfo getUpdateInfo() {
+        return updateInfo;
+    }
+
+    public void setUpdateInfo(UpdateInfo updateInfo) {
+        this.updateInfo = updateInfo;
+    }
+
+    @Field("create_info")
+    private CreateInfo createInfo;
+
+    @Field("update_info")
+    private UpdateInfo updateInfo;
+
     @Field("category")
     private RefType Category;
 
